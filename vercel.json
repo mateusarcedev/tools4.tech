@@ -1,0 +1,14 @@
+{
+    "builds": [
+      {
+        "src": "web/**/*",
+        "use": "@vercel/next"
+      }
+    ],
+    "routes": [
+      {
+        "src": "/(.*)",
+        "dest": "web/$1"
+      }
+    ]
+  }
