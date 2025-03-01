@@ -1,14 +1,7 @@
 {
-    "builds": [
-      {
-        "src": "web/**/*",
-        "use": "@vercel/next"
-      }
-    ],
-    "routes": [
-      {
-        "src": "/(.*)",
-        "dest": "web/$1"
-      }
-    ]
+  "build": {
+    "env": {
+      "ENABLE_EXPERIMENTAL_COREPACK": "1"
+    }
   }
+}
