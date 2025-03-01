@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum SuggestionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+model Tool {
+  id          String      @id @default(uuid())
+  name        String
+  link        String      @unique
+  description String
+  categoryID  String
+  category    Category    @relation("ToolCategory", fields: [categoryID], references: [id])
+  favorites   Favorite[]
+  Sugestion   Sugestion[]
+
+  @@map("tools")
+}
+
+model Category {
+  id          String      @id @default(uuid())
+  name        String      @unique
+  tools       Tool[]      @relation("ToolCategory")
+  suggestions Sugestion[] @relation("SuggestionCategory")
+
+  @@map("categories")
+}
+
+model User {
+  githubId    Int         @id @unique
+  name        String
+  email       String
+  avatar      String
+  role        UserRole    @default(USER)
+  favorites   Favorite[]  @relation("UserFavorites")
+  suggestions Sugestion[] @relation("UserSuggestions") // Nova relação
+
+  @@map("users")
+}
+
+model Favorite {
+  id     String @id @default(uuid())
+  userId Int
+  toolId String
+  user   User   @relation("UserFavorites", fields: [userId], references: [githubId])
+  tool   Tool   @relation(fields: [toolId], references: [id])
+
+  @@map("favorites")
+}
+
+model Sugestion {
+  id          String           @id @default(uuid())
+  name        String
+  link        String
+  description String
+  categoryId  String
+  toolId      String?
+  status      SuggestionStatus @default(PENDING)
+  date        DateTime         @default(now())
+  userId      Int
+  category    Category         @relation("SuggestionCategory", fields: [categoryId], references: [id])
+  tool        Tool?            @relation(fields: [toolId], references: [id])
+  user        User             @relation("UserSuggestions", fields: [userId], references: [githubId])
+
+  @@map("suggestions")
+}
