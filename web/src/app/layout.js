@@ -7,7 +7,7 @@ import './globals.css'
 import { QueryProvider, SessionWrapper } from './providers'
 
 export const metadata = {
-  metadataBase: new URL('https://tools4.tech'),
+  metadataBase: new URL('https://www.tools4.tech'),
   title: 'Tools4.tech - Essential Tools for Developers',
   description:
     'Find the best developer tools and accelerate your software development with carefully curated resources at Tools4.tech.',
@@ -17,14 +17,13 @@ export const metadata = {
     title: 'Tools4.tech - Essential Tools for Developers',
     description:
       'Discover essential programming tools and accelerate your software development at Tools4.tech.',
-    url: 'https://tools4.tech/',
+    url: 'https://www.tools4.tech/',
     siteName: 'Tools4.tech',
     locale: 'en_US',
     type: 'website',
     images: [
       {
-        url: '/opengraph.png',
-        width: 1200,
+        url: '/opengraph.png', 
         height: 630,
         alt: 'Tools4.tech - Developer Tools',
       },
@@ -34,15 +33,15 @@ export const metadata = {
     card: 'summary_large_image',
     title: 'Tools4.tech - Essential Tools for Developers',
     description:
-      'Accelerate your software development with the best developer tools.',
+      'Discover essential programming tools and accelerate your software development at Tools4.tech.',
     images: ['/opengraph.png'], 
   },
   robots: 'index, follow',
   authors: [{ name: 'Mateus Arce' }],
   alternates: {
-    canonical: 'https://tools4.tech/',
+    canonical: 'https://www.tools4.tech/',
   },
-}
+};
 
 
 export const viewport = {
