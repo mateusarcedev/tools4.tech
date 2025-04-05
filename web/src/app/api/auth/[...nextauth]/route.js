@@ -2,8 +2,7 @@ import NextAuth from 'next-auth';
 import GithubProvider from 'next-auth/providers/github';
 import { AxiosConfig } from '@/utils';
 
-// Configuração do NextAuth (não exportada)
-const authOptions = {
+export const authOptions = {
   providers: [
     GithubProvider({
       clientId: process.env.GITHUB_ID,
@@ -11,7 +10,7 @@ const authOptions = {
       profile(profile) {
         return {
           id: profile.id,
-          name: profile.name,
+          name: profile.name || profile.login,
           email: profile.email,
           avatar_url: profile.avatar_url,
         };
@@ -23,29 +22,50 @@ const authOptions = {
       const { id, name, email, avatar_url } = profile;
 
       try {
-        const res = await AxiosConfig.post('/users', {
-          githubId: parseInt(id),
-          name: name || 'Unknown',
-          email: email || '',
-          avatar: avatar_url || '',
+        // First, try to authenticate with the backend
+        const authResponse = await fetch(`${process.env.URL_API}/auth/validate-token`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            githubId: parseInt(id),
+            token: account.access_token 
+          }),
         });
 
-        if (res.status === 200 || res.status === 201) {
-          user.role = res.data.role;
-          return true;
+        // If authentication fails, create/update the user
+        if (!authResponse.ok) {
+          const res = await AxiosConfig.post('/users', {
+            githubId: parseInt(id),
+            name: name || profile.login || 'Unknown',
+            email: email || '',
+            avatar: avatar_url || '',
+          });
+
+          if (res.status === 200 || res.status === 201) {
+            user.role = res.data.role;
+            user.githubId = parseInt(id);
+            return true;
+          }
         } else {
-          console.error('Error saving user in backend');
-          return false;
+          // Authentication succeeded
+          const userData = await authResponse.json();
+          user.role = userData.role;
+          user.githubId = parseInt(id);
+          return true;
         }
       } catch (error) {
         console.error('Error connecting to the backend: ', error);
-        return false;
+        // Still allow sign in even if backend is down
+        return true;
       }
     },
     async jwt({ token, account, profile, user }) {
       if (account && profile) {
         token.githubId = parseInt(profile.id);
         token.avatar_url = profile.avatar_url;
+        token.access_token = account.access_token;
       }
       if (user?.role) {
         token.role = user.role;
@@ -57,6 +77,7 @@ const authOptions = {
         session.user.githubId = token.githubId;
         session.user.avatar_url = token.avatar_url;
         session.user.role = token.role;
+        session.accessToken = token.access_token;
       }
       return session;
     },
@@ -65,8 +86,8 @@ const authOptions = {
   secret: process.env.NEXTAUTH_SECRET,
 };
 
-// Inicializa o NextAuth
+// Initialize NextAuth
 const handler = NextAuth(authOptions);
 
-// Exporta as funções GET e POST para o App Router
-export { handler as GET, handler as POST };
+// Export GET and POST functions for App Router
+export { handler as GET, handler as POST, authOptions };

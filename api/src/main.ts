@@ -6,6 +6,9 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Remove the problematic code that tries to get JwtAuthGuard
+  // const jwtAuthGuard = app.get(JwtAuthGuard);
+  // app.useGlobalGuards(jwtAuthGuard);
 
   app.enableCors({
     origin: '*',
@@ -20,6 +23,7 @@ async function bootstrap() {
       'Este é um projeto criado para ajudar programadores iniciantes a encontrar ferramentas úteis para o desenvolvimento de softwares. Aqui você encontrará materiais para desenvolvimento frontend, backend e estudo de estruturas de dados. Sinta-se livre para contribuir.',
     )
     .setVersion('0.1')
+    .addBearerAuth() // Add Bearer authentication to Swagger
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

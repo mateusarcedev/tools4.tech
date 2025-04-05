@@ -1,6 +1,7 @@
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import Card from '@/components/Card'
 import { getServerSession } from 'next-auth'
+import api from '@/utils/api';
 
 export const metadata = {
   title: 'Favorites - Tools4.tech',
@@ -8,10 +9,16 @@ export const metadata = {
 
 async function getFavorites(userId) {
   try {
+    const session = await getServerSession(authOptions);
+    
     const response = await fetch(
       `${process.env.URL_API}/favorites/user/${userId}`,
       {
         method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json',
+        },
         cache: 'no-store',
       },
     )
@@ -23,6 +30,7 @@ async function getFavorites(userId) {
     const data = await response.json()
     return data
   } catch (error) {
+    console.error('Error fetching favorites:', error);
     return null
   }
 }

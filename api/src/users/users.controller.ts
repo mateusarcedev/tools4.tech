@@ -1,42 +1,30 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-} from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
-import { CreateUserDto } from "./dto/create-user.dto";
-import { UpdateUserDto } from "./dto/update-user.dto";
-import { UsersService } from "./users.service";
+import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { UsersService } from './users.service';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { Public } from '../auth/decorators/public.decorator';
 
-@Controller("users")
-@ApiTags("Users")
+@ApiTags('users')
+@Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
-  @Post()
-  createOrUpdate(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.createOrUpdateUser(createUserDto);
+  @Get(':id')
+  @ApiBearerAuth()
+  findOne(@Param('id') id: string) {
+    return this.usersService.findOne(+id);
   }
 
-  @Get(":githubId")
-  findOne(@Param("githubId") githubId: number) {
-    return this.usersService.findOne(githubId);
+  @Patch(':id')
+  @ApiBearerAuth()
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.update(+id, updateUserDto);
   }
 
-  @Patch(":githubId")
-  update(
-    @Param("githubId") githubId: number,
-    @Body() updateUserDto: UpdateUserDto
-  ) {
-    return this.usersService.update(githubId, updateUserDto);
-  }
-
-  @Delete(":githubId")
-  remove(@Param("githubId") githubId: number) {
-    return this.usersService.remove(githubId);
+  @Delete(':id')
+  @ApiBearerAuth()
+  remove(@Param('id') id: string) {
+    return this.usersService.remove(+id);
   }
 }

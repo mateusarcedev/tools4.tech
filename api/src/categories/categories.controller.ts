@@ -2,40 +2,51 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { Public } from '../auth/decorators/public.decorator';
 import { CategoryEntity } from './entities/category.entity';
 
-@Controller('categories')
 @ApiTags('categories')
+@Controller('categories')
 export class CategoriesController {
-  constructor(private readonly categoriesService: CategoriesService) { }
+  constructor(private readonly categoriesService: CategoriesService) {}
 
   @Post()
-  @ApiCreatedResponse({ type: CategoryEntity })
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create a new category' })
+  @ApiResponse({ status: 201, description: 'The category has been successfully created.', type: CategoryEntity })
   create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoriesService.create(createCategoryDto);
   }
 
+  @Public()
   @Get()
-  @ApiOkResponse({ type: CategoryEntity, isArray: true })
+  @ApiOperation({ summary: 'Get all categories' })
+  @ApiResponse({ status: 200, description: 'Return all categories.', type: [CategoryEntity] })
   findAll() {
-    return this.categoriesService.findAll()
+    return this.categoriesService.findAll();
   }
 
+  @Public()
   @Get(':id')
-  @ApiOkResponse({ type: CategoryEntity })
+  @ApiOperation({ summary: 'Get a category by id' })
+  @ApiResponse({ status: 200, description: 'Return the category.', type: CategoryEntity })
   findOne(@Param('id') id: string) {
     return this.categoriesService.findOne(id);
   }
 
   @Patch(':id')
-  @ApiOkResponse({ type: CategoryEntity })
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update a category' })
+  @ApiResponse({ status: 200, description: 'The category has been successfully updated.', type: CategoryEntity })
   update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
     return this.categoriesService.update(id, updateCategoryDto);
   }
 
   @Delete(':id')
-  @ApiOkResponse({ type: CategoryEntity })
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete a category' })
+  @ApiResponse({ status: 200, description: 'The category has been successfully deleted.', type: CategoryEntity })
   remove(@Param('id') id: string) {
     return this.categoriesService.remove(id);
   }
